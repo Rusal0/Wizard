@@ -3,7 +3,7 @@ import pandas as pd
 from io import BytesIO
 import zipfile
 import openpyxl
-from openpyxl import load_workbook
+from openpyxl import load_workbook  # Ensure this import is present
 import hashlib
 
 st.title('Excel Wizard')
@@ -81,9 +81,4 @@ if option == 'Split Excel by Sheets':
 
 # Merge Excel Files
 elif option == 'Merge Excel Files':
-    uploaded_files = st.file_uploader("Upload multiple Excel files", type=["xlsx"], accept_multiple_files=True)
-    if uploaded_files:
-        st.write("Processing...")
-        merged_result = merge_excels(uploaded_files)
-
-        st.download_button("Download Merged File", data=merged_result, file_name="merged_file.xlsx")
+    uploaded_files = st.file_uploader("Upload multiple Excel files", type=["xlsx
