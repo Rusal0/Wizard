@@ -46,12 +46,12 @@ def merge_excels(files):
 
     with pd.ExcelWriter(combined_output, engine='xlsxwriter') as writer:
         for i, file in enumerate(files):
-            excel_data = pd.ExcelFile(file)
+            excel_data = pd.read_excel(file, engine='openpyxl')  # Use BytesIO directly
             for sheet_name in excel_data.sheet_names:
-                sheet_data = pd.read_excel(file, sheet_name=sheet_name)
+                sheet_data = excel_data[sheet_name]
 
                 # Generate a unique sheet name using a hash of the file content and sheet name
-                with open(file, 'rb') as f:
+                with BytesIO(excel_data.read()) as f:  # Use BytesIO for file data
                     file_data = f.read()
                 unique_id = hashlib.sha1((file_data + sheet_name).encode()).hexdigest()[:10]
                 new_sheet_name = f"{unique_id}_{sheet_name}"
