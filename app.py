@@ -48,7 +48,12 @@ def merge_excels(files):
         for i, file in enumerate(files):
             try:
                 excel_data = pd.read_excel(file, engine='openpyxl')
-                if excel_data is not None:
+
+                # Check if excel_data is a DataFrame
+                if isinstance(excel_data, pd.DataFrame):
+                    sheet_name = f"Sheet{i+1}"  # Assign a default sheet name
+                    excel_data.to_excel(writer, sheet_name=sheet_name, index=False)
+                else:
                     for sheet_name in excel_data.sheet_names:
                         sheet_data = excel_data[sheet_name]
 
@@ -59,8 +64,7 @@ def merge_excels(files):
                         new_sheet_name = f"{unique_id}_{sheet_name}"
 
                         sheet_data.to_excel(writer, sheet_name=new_sheet_name, index=False)
-                else:
-                    st.error(f"Error processing file {file.name} (might be empty or corrupt)")
+
             except Exception as e:
                 st.error(f"Error processing file {file.name}: {str(e)}")
 
