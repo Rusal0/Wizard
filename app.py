@@ -46,12 +46,12 @@ def split_excel(file):
 def merge_excels(files):
     combined_output = BytesIO()
 
-    with openpyxl.Workbook() as wb:  # Use openpyxl directly for formatting support
+    for file in files:
+        try:
+            excel_wb = load_workbook(file, data_only=True)
 
-        for file in files:
-            try:
-                excel_wb = load_workbook(file, data_only=True)
-
+            # Create a new workbook for each file within the loop
+            with openpyxl.Workbook() as wb:  # Use openpyxl directly for formatting support
                 for sheet_name in excel_wb.sheetnames:
                     sheet_data = excel_wb[sheet_name]
 
@@ -75,10 +75,12 @@ def merge_excels(files):
                             new_cell.fill = cell.fill.copy()
                             new_cell.number_format = cell.number_format
 
-            except Exception as e:
-                st.error(f"Error processing file {file.name}: {str(e)}")
+                # Save the merged workbook outside the loop
+                wb.save(combined_output)
 
-    wb.save(combined_output)
+        except Exception as e:
+            st.error(f"Error processing file {file.name}: {str(e)}")
+
     combined_output.seek(0)
     return combined_output
 
