@@ -3,7 +3,7 @@ import pandas as pd
 from io import BytesIO
 import zipfile
 import openpyxl
-from openpyxl import load_workbook  # Ensure this import is present
+from openpyxl import load_workbook
 import hashlib
 
 st.title('Excel Wizard')
@@ -26,8 +26,12 @@ def split_excel(file):
                     new_cell = new_sheet[cell.coordinate]
                     new_cell.value = cell.value
 
-                    # Use copy_cell to preserve formatting (ensure correct arguments)
-                    new_wb.copy_cell(source=cell, target=new_cell)
+                    if cell.has_style:
+                        new_cell.font = cell.font.copy()
+                        new_cell.border = cell.border.copy()
+                        new_cell.alignment = cell.alignment.copy()
+                        new_cell.fill = cell.fill.copy()
+                        new_cell.number_format = cell.number_format
 
             with BytesIO() as sheet_output:
                 new_wb.save(sheet_output)
@@ -81,4 +85,9 @@ if option == 'Split Excel by Sheets':
 
 # Merge Excel Files
 elif option == 'Merge Excel Files':
-    uploaded_files = st.file_uploader("Upload multiple Excel files", type=["xlsx
+    uploaded_files = st.file_uploader("Upload multiple Excel files", type=["xlsx"], accept_multiple_files=True)
+    if uploaded_files:
+        st.write("Processing...")
+        merged_result = merge_excels(uploaded_files)
+
+        st.download_button("Download Merged File", data=merged_result, file_name="merged_file.xlsx")
