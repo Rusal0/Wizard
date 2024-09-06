@@ -9,7 +9,7 @@ import hashlib
 st.title('Excel Wizard')
 
 
-# Function to split an Excel file into separate files for each sheet with formatting (unchanged)
+# Function to split an Excel file into separate files for each sheet with formatting
 def split_excel(file):
     original_wb = load_workbook(file, data_only=True)
 
@@ -87,7 +87,7 @@ def merge_excels(files):
 st.sidebar.title("Excel Wizard Options")
 option = st.sidebar.radio("Choose an action", ('Split Excel by Sheets', 'Merge Excel Files'))
 
-# Split Excel File (unchanged)
+# Split Excel File
 if option == 'Split Excel by Sheets':
     uploaded_file = st.file_uploader("Upload an Excel file", type=["xlsx"])
     if uploaded_file is not None:
@@ -95,7 +95,10 @@ if option == 'Split Excel by Sheets':
         split_result = split_excel(uploaded_file)
         st.download_button("Download Split Files (ZIP)", data=split_result, file_name="split_sheets.zip")
 
-# Merge Excel Files with formatting preservation
+# Merge Excel Files
 elif option == 'Merge Excel Files':
     uploaded_files = st.file_uploader("Upload multiple Excel files", type=["xlsx"], accept_multiple_files=True)
     if uploaded_files:
+        st.write("Processing...")
+        merged_result = merge_excels(uploaded_files)
+        st.download_button("Download Merged File", data=merged_result, file_name="merged_file.xlsx")
