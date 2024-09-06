@@ -89,7 +89,8 @@ if option == 'Split Excel by Sheets':
     split_result = split_excel(uploaded_file)
     loading_icon.empty()  # Clear the loading icon after processing
 
-    st.download_button("Download Split Files (ZIP)", data=split_result, file_name="split_sheets.zip")
+    # Add the download button after processing is complete
+    download_button = st.download_button("Download Split Files (ZIP)", data=split_result, file_name="split_sheets.zip")
 
 # Merge Excel Files
 elif option == 'Merge Excel Files':
@@ -100,4 +101,7 @@ elif option == 'Merge Excel Files':
     loading_icon.markdown("**Processing...** (Please wait)")
 
     merged_result = merge_excels(uploaded_files)
-    loading_icon.empty()  #
+    loading_icon.empty()  # Clear the loading icon after processing
+
+    # Add the download button after processing is complete
+    download_button = st.download_button("Download Merged File", data=merged_result, file_name="merged_file.xlsx")
