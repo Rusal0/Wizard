@@ -26,12 +26,8 @@ def split_excel(file):
                     new_cell = new_sheet[cell.coordinate]
                     new_cell.value = cell.value
 
-                    if cell.has_style:
-                        new_cell.font = cell.font.copy()
-                        new_cell.border = cell.border.copy()
-                        new_cell.alignment = cell.alignment.copy()
-                        new_cell.fill = cell.fill.copy()
-                        new_cell.number_format = cell.number_format
+                    # Use copy_cell to preserve formatting
+                    new_wb.copy_cell(cell, new_cell)
 
             with BytesIO() as sheet_output:
                 new_wb.save(sheet_output)
