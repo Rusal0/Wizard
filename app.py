@@ -51,7 +51,7 @@ def merge_excels(files):
 
                 # Check if excel_data is a DataFrame
                 if isinstance(excel_data, pd.DataFrame):
-                    sheet_name = f"Sheet{i+1}"  # Assign a default sheet name
+                    sheet_name = file.name.split('.')[0]  # Extract the file name without extension
                     excel_data.to_excel(writer, sheet_name=sheet_name, index=False)
                 else:
                     for sheet_name in excel_data.sheet_names:
