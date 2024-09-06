@@ -57,8 +57,8 @@ def merge_excels(files):
 
                 # Generate a unique sheet name using a hash for potential duplicate sheet names
                 with BytesIO() as f:
-                    # Serialize the worksheet to XML
-                    sheet_data.copy_to(f)
+                    # Copy the worksheet to the BytesIO object
+                    sheet_data.copy(f, start_row=1, start_col=1)
                     file_data = f.getvalue()
                     unique_id = hashlib.sha1(file_data + sheet_name.encode()).hexdigest()[:10]
 
