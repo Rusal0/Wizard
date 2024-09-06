@@ -46,17 +46,23 @@ def merge_excels(files):
 
     with pd.ExcelWriter(combined_output, engine='xlsxwriter') as writer:
         for i, file in enumerate(files):
-            excel_data = pd.read_excel(file, engine='openpyxl')  # Use BytesIO directly
-            for sheet_name in excel_data.sheet_names:
-                sheet_data = excel_data[sheet_name]
+            try:
+                excel_data = pd.read_excel(file, engine='openpyxl')
+                if excel_data is not None:
+                    for sheet_name in excel_data.sheet_names:
+                        sheet_data = excel_data[sheet_name]
 
-                # Generate a unique sheet name using a hash of the file content and sheet name
-                with BytesIO(excel_data.read()) as f:  # Use BytesIO for file data
-                    file_data = f.read()
-                unique_id = hashlib.sha1((file_data + sheet_name).encode()).hexdigest()[:10]
-                new_sheet_name = f"{unique_id}_{sheet_name}"
+                        # Generate a unique sheet name using a hash of the file content and sheet name
+                        with BytesIO(excel_data.read()) as f:
+                            file_data = f.read()
+                        unique_id = hashlib.sha1((file_data + sheet_name).encode()).hexdigest()[:10]
+                        new_sheet_name = f"{unique_id}_{sheet_name}"
 
-                sheet_data.to_excel(writer, sheet_name=new_sheet_name, index=False)
+                        sheet_data.to_excel(writer, sheet_name=new_sheet_name, index=False)
+                else:
+                    st.error(f"Error processing file {file.name} (might be empty or corrupt)")
+            except Exception as e:
+                st.error(f"Error processing file {file.name}: {str(e)}")
 
     combined_output.seek(0)
     return combined_output
