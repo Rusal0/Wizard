@@ -51,32 +51,33 @@ def merge_excels(files):
             excel_wb = load_workbook(file, data_only=True)
 
             # Create a new workbook for each file within the loop
-            with openpyxl.Workbook() as wb:  # Use openpyxl directly for formatting support
-                for sheet_name in excel_wb.sheetnames:
-                    sheet_data = excel_wb[sheet_name]
+            wb = openpyxl.Workbook()  # Use openpyxl directly for formatting support
+            for sheet_name in excel_wb.sheetnames:
+                sheet_data = excel_wb[sheet_name]
 
-                    # Generate a unique sheet name using a hash for potential duplicate sheet names
-                    with BytesIO() as f:
-                        file_data = f.write(sheet_data.worksheet.sheet_data.xml)
-                        unique_id = hashlib.sha1(file_data + sheet_name.encode()).hexdigest()[:10]
+                # Generate a unique sheet name using a hash for potential duplicate sheet names
+                with BytesIO() as f:
+                    file_data = f.write(sheet_data.worksheet.sheet_data.xml)
+                    unique_id = hashlib.sha1(file_data + sheet_name.encode()).hexdigest()[:10]
 
-                    new_sheet_name = f"{unique_id}_{sheet_name}"
-                    new_sheet = wb.create_sheet(title=new_sheet_name)
+                new_sheet_name = f"{unique_id}_{sheet_name}"
+                new_sheet = wb.create_sheet(title=new_sheet_name)
 
-                    # Copy data and formatting cell by cell
-                    for row in sheet_data.iter_rows():
-                        for cell in row:
-                            new_cell = new_sheet[cell.coordinate]
-                            new_cell.value = cell.value
+                # Copy data and formatting cell by cell
+                for row in sheet_data.iter_rows():
+                    for cell in row:
+                        new_cell = new_sheet[cell.coordinate]
+                        new_cell.value = cell.value
 
-                            new_cell.font = cell.font.copy()
-                            new_cell.border = cell.border.copy()
-                            new_cell.alignment = cell.alignment.copy()
-                            new_cell.fill = cell.fill.copy()
-                            new_cell.number_format = cell.number_format
+                        new_cell.font = cell.font.copy()
+                        new_cell.border = cell.border.copy()
+                        new_cell.alignment = cell.alignment.copy()
+                        new_cell.fill = cell.fill.copy()
+                        new_cell.number_format = cell.number_format
 
-                # Save the merged workbook outside the loop
-                wb.save(combined_output)
+            # Save the merged workbook outside the loop
+            wb.save(combined_output)
+            wb.close()  # Manually close the workbook
 
         except Exception as e:
             st.error(f"Error processing file {file.name}: {str(e)}")
