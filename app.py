@@ -8,9 +8,10 @@ import hashlib
 
 st.title('Excel Wizard')
 
+
 # Function to split an Excel file into separate files for each sheet with formatting
 def split_excel(file):
-    original_wb = load_workbook(file, data_only=False)
+    original_wb = load_workbook(file, data_only=True)
 
     output = BytesIO()
     with zipfile.ZipFile(output, 'w') as zf:
@@ -26,12 +27,12 @@ def split_excel(file):
                     new_cell = new_sheet[cell.coordinate]
                     new_cell.value = cell.value
 
-                    if cell.has_style:
-                        new_cell.font = cell.font.copy()
-                        new_cell.border = cell.border.copy()
-                        new_cell.alignment = cell.alignment.copy()
-                        new_cell.fill = cell.fill.copy()
-                        new_cell.number_format = cell.number_format
+                    # Copy all formatting attributes
+                    new_cell.font = cell.font.copy()
+                    new_cell.border = cell.border.copy()
+                    new_cell.alignment = cell.alignment.copy()
+                    new_cell.fill = cell.fill.copy()
+                    new_cell.number_format = cell.number_format
 
             with BytesIO() as sheet_output:
                 new_wb.save(sheet_output)
@@ -40,12 +41,13 @@ def split_excel(file):
     output.seek(0)
     return output
 
+
 # Function to merge (union) multiple Excel files into separate sheets within one Excel file
 def merge_excels(files):
     combined_output = BytesIO()
 
     with pd.ExcelWriter(combined_output, engine='xlsxwriter') as writer:
-        for i, file in enumerate(files):
+        for file in files:
             try:
                 excel_data = pd.read_excel(file, engine='openpyxl')
 
@@ -54,13 +56,13 @@ def merge_excels(files):
                     sheet_name = file.name.split('.')[0]  # Extract the file name without extension
                     excel_data.to_excel(writer, sheet_name=sheet_name, index=False)
                 else:
-                    for sheet_name in excel_data.sheet_names:
+                    for sheet_name in excel_data.sheetnames:
                         sheet_data = excel_data[sheet_name]
 
-                        # Generate a unique sheet name using a hash of the file content and sheet name
-                        with BytesIO(excel_data.read()) as f:
+                        # Generate a unique sheet name using a hash for potential duplicate sheet names
+                        with BytesIO(sheet_data.read()) as f:
                             file_data = f.read()
-                        unique_id = hashlib.sha1((file_data + sheet_name).encode()).hexdigest()[:10]
+                            unique_id = hashlib.sha1(file_data + sheet_name.encode()).hexdigest()[:10]
                         new_sheet_name = f"{unique_id}_{sheet_name}"
 
                         sheet_data.to_excel(writer, sheet_name=new_sheet_name, index=False)
@@ -70,6 +72,7 @@ def merge_excels(files):
 
     combined_output.seek(0)
     return combined_output
+
 
 # File upload options
 st.sidebar.title("Excel Wizard Options")
@@ -89,5 +92,4 @@ elif option == 'Merge Excel Files':
     if uploaded_files:
         st.write("Processing...")
         merged_result = merge_excels(uploaded_files)
-
         st.download_button("Download Merged File", data=merged_result, file_name="merged_file.xlsx")
