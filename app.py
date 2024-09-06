@@ -26,8 +26,8 @@ def split_excel(file):
                     new_cell = new_sheet[cell.coordinate]
                     new_cell.value = cell.value
 
-                    # Use copy_cell to preserve formatting
-                    new_wb.copy_cell(cell, new_cell)
+                    # Use copy_cell to preserve formatting (ensure correct arguments)
+                    new_wb.copy_cell(source=cell, target=new_cell)
 
             with BytesIO() as sheet_output:
                 new_wb.save(sheet_output)
